@@ -2,7 +2,7 @@ import sys, time, math
 t_app = time.time()
 from pyspark.sql import SparkSession, functions as F
 
-# Tache 4.1 (phase 4, decision du 27/09 : deux origines, un grain).
+# Tache 4.1 (phase 4, decision de conception : deux origines, un grain).
 # Produit les faits d'ecoute ListenBrainz au grain (jour d'ecoute, recording_msid), sans aucun jeton :
 #   date, recording_msid, ecoutes (triplets distincts), auditeurs (jetons distincts du groupe), partition mois.
 # Mode complet : a partir du dump complet aplati (2002-10 a 2016-12), ecrit <sortie>/origine=complet, une fois.

@@ -1,7 +1,7 @@
 # Modélisation prédictive — construction, ablation et évaluation
 
 **Projet de certification Bloc 6 — Big Data**
-SoundLab Analytics · Loïc Rabetsanta · 11 septembre 2026
+SoundLab Analytics · Loïc Rabetsanta
 Tâches 10 à 13 · Couvre les indicateurs RNCP 5.5 (IA éthique, explicabilité) et 6.2-6.4 (qualité du code et de la documentation)
 
 ---

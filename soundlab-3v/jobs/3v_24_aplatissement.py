@@ -9,12 +9,12 @@ from pyspark.sql import SparkSession, functions as F, types as T
 # v5 (tache 3.2, option C) : partitions mois=/jour=/dump= ; jour = date d'ecoute si le retard par rapport
 # au jour de reception (--reception, debut de fenetre du manifeste) est <= 30 jours (negatifs compris),
 # sinon _ancien. Une ecoute d'hier recue aujourd'hui atterrit dans jour=<hier>.
-# v6 (tache 3.3, decision du 26/09 apres l'echec du dump 2680) : une ligne dont un champ garde a change de type
+# v6 (tache 3.3, decision de conception apres l'echec du dump 2680) : une ligne dont un champ garde a change de type
 # (TYPE_MODIFIE) part au rebut avec le motif type_modifie:<champs> au lieu d'arreter tout le dump, tant que ces
 # lignes restent <= TM_TAUX_MAX des lignes lues ET touchent au plus TM_CHAMPS_MAX champ distinct. Au-dela :
 # echec du contrat, aucune ecriture, comme en v5. Les lignes suspectes ou non conformes sont diagnostiquees
 # ligne a ligne (la valeur n'est transmise a Python que pour elles).
-# v7 (tache 3.3, echec du dump 2683 le 27/09) : un dump vide (0 ligne lue, 0 attendue, contrat respecte) est un
+# v7 (tache 3.3, echec du dump 2683 lors d'un chargement nocturne) : un dump vide (0 ligne lue, 0 attendue, contrat respecte) est un
 # cas normal : aucune ecriture, SORTIE LIGNES 0, DUMP_VIDE, APLATI_OK. Tout autre lot sans ligne a ecrire
 # (lignes lues mais toutes au rebut ou incognito, ou attendu different de 0) echoue : APLATI_VIDE_NON_ATTENDU.
 ARGS = sys.argv[1:]

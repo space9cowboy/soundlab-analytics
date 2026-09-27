@@ -3,7 +3,7 @@
 **Projet de certification Bloc 6 — Big Data**
 Loïc Rabetsanta — Master Architecte en Intelligence Artificielle, Jedha / Fonderie de l'Image
 Compte AWS `589276558852` — Région `eu-north-1` (Stockholm)
-Version 2.0 — arrêté au 10 septembre 2026
+Version 2.0
 
 ---
 
@@ -131,7 +131,7 @@ Aucun `s3:*` sur `*`, aucune politique administrative sur un rôle de calcul.
 - **CloudTrail** `soundlab-trail` : multirégion, validation d'intégrité des fichiers journaux activée.
 - **Secrets Manager** `soundlab/pseudonymisation-salt` : sel de 32 octets généré par `openssl rand -hex 32`, transmis directement à l'API, jamais écrit sur disque, chiffré par la CMK.
 
-### 4.5 Durées de conservation — appliquées le 10/09/2026
+### 4.5 Durées de conservation — appliquées
 
 Script `infra/03_retention.sh` (action A1 de l'AIPD) :
 
@@ -278,7 +278,7 @@ Le job est séparé des pipelines d'ingestion à dessein : un pipeline qui s'aut
 
 **Chaque seuil est justifié dans le code.** Le seuil sur `genre` est à 60 %, juste au-dessus des 55,9 % mesurés : il n'alerte pas sur l'état connu mais signale une dégradation. Celui sur les caractéristiques audio est à zéro, parce que ce sont les variables du modèle. Un contrôle dont personne ne peut justifier le seuil finit désactivé au premier faux positif.
 
-**Résultat du 10/09/2026 : 13 contrôles sur 13 réussis, 0 échec bloquant, 0 avertissement.**
+**Résultat : 13 contrôles sur 13 réussis, 0 échec bloquant, 0 avertissement.**
 
 | Contrôle | Résultat |
 |---|---|
@@ -321,7 +321,7 @@ Cinq risques résiduels sont consignés, dont la singularisation : l'auditeur le
 
 ## 9. Écarts au plan initial
 
-Le plan consigné dans Notion en juillet 2026 a été révisé sur huit points. Aucun n'est un renoncement : chacun découle soit du changement de source de données, soit d'une mesure effectuée en cours de route.
+Le plan initial consigné dans Notion a été révisé sur huit points. Aucun n'est un renoncement : chacun découle soit du changement de source de données, soit d'une mesure effectuée en cours de route.
 
 | N° | Prévu | Réalisé | Raison |
 |---|---|---|---|
@@ -616,8 +616,6 @@ Budget d'alerte à 40 $/mois. Redshift Serverless bénéficiera du crédit d'ess
 
 ## 13. Contenu du dépôt
 
-État au 14/09/2026.
-
 ```
 soundlab-analytics/
 ├── .soundlab.env                       # variables d'environnement (non versionné)
@@ -681,11 +679,11 @@ soundlab-analytics/
 | Tâche | Objet | Criticité |
 |---|---|---|
 | 10-11 | Feature engineering et normalisation PySpark, table `songs_features_labeled` | Haute — produit la table à charger dans l'entrepôt |
-| 14 | **Orchestration Airflow** — DAG à cinq tâches | ✅ Livré le 14/09/2026, voir § 16 |
+| 14 | **Orchestration Airflow** — DAG à cinq tâches | ✅ Livré, voir § 16 |
 | 12-13 | Entraînement Random Forest, suivi MLflow, évaluation et SHAP | ✅ Livré, voir `docs/03_rapport_modelisation.md` |
-| 21 | **Surveillance CloudWatch** — trois alarmes, tableau de bord, chaîne SNS vérifiée | ✅ Livré le 14/09/2026, voir § 17 |
-| 9.5 (ext.) | **Restitution UNLOAD** — référentiel d'artistes exporté vers le lac | ✅ Livré le 14/09/2026, voir § 18 |
-| 22 | **Rapport complet du projet** — livrable n° 4 du brief | ✅ Livré le 14/09/2026, voir § 19 |
+| 21 | **Surveillance CloudWatch** — trois alarmes, tableau de bord, chaîne SNS vérifiée | ✅ Livré, voir § 17 |
+| 9.5 (ext.) | **Restitution UNLOAD** — référentiel d'artistes exporté vers le lac | ✅ Livré, voir § 18 |
+| 22 | **Rapport complet du projet** — livrable n° 4 du brief | ✅ Livré, voir § 19 |
 | 15, 17-20, 23-24 | Dérive Evidently, tests d'intégration, API de score, intégration continue, compléments de diaporama, archive de rendu | Moyenne |
 
 ### Livrables attendus par le brief
@@ -768,7 +766,7 @@ Un rôle `SoundLabAirflowRole` a été créé avec une politique limitée au str
 
 ### 16.5 Résultats mesurés
 
-| Tâche | 13/09 | 14/09 | Écart |
+| Tâche | Exécution 1 | Exécution 2 | Écart |
 |---|---|---|---|
 | 07 ingestion `music_info` | 151,8 s | 182,0 s | + 30,2 s |
 | 08 ingestion `listening_history` | 91,1 s | 91,2 s | **+ 0,1 s** |
@@ -961,7 +959,7 @@ La vue expose désormais `nb_titres_avec_genre`, qui dit sur quelle assise repos
 
 ### 19.1 Une ambiguïté levée avant d'écrire
 
-La fiche Notion de la tâche 22 décrivait la mise à jour du **document de cadrage Jedha** — métriques réelles et grille d'autocontrôle des treize compétences. Ce document a été rendu et validé en juillet 2026 ; sa consigne était donc périmée.
+La fiche Notion de la tâche 22 décrivait la mise à jour du **document de cadrage Jedha** — métriques réelles et grille d'autocontrôle des treize compétences. Ce document avait déjà été rendu et validé ; sa consigne était donc périmée.
 
 Ce qui restait à produire était le **livrable n° 4 du brief Bloc 6** : « un rapport complet décrivant chaque étape du projet, les résultats obtenus, et les recommandations d'optimisation ». Deux documents distincts, deux lecteurs distincts, deux structures distinctes.
 

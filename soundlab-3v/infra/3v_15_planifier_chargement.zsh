@@ -3,7 +3,7 @@
 # 1. Role SoundLab3VSchedulerChargement : states:StartExecution sur cette seule machine.
 # 2. Planification quotidienne soundlab-3v-chargement-quotidien : 02:00 UTC chaque jour (E1).
 # 3. Planification unique soundlab-3v-chargement-essai : dans 15 minutes, supprimee par AWS apres usage (E6 :
-#    premier chargement sans intervention, observable aujourd'hui).
+#    premier chargement sans intervention, observable le jour meme).
 # 4. Simulation du role.
 set -euo pipefail
 COMPTE=589276558852; REGION=eu-north-1

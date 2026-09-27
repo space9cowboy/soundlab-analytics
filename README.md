@@ -6,9 +6,9 @@ L'usage est non commercial, du fait des licences de Kaggle et des étiquettes Mu
 
 > Sources : `soundlab-analytics/docs/01_dpia_analyse_impact.md` § 1.1 ; `soundlab-3v/docs/05_journal_trois_v.md`, tâche 0.1.
 
-![Architecture](docs/architecture.png)
+![Architecture consolidée v1 et trois V](docs/architecture_v1_3v.png)
 
-Version vectorielle : [`docs/architecture.svg`](docs/architecture.svg).
+*Architecture consolidée : v1 (Bloc 6) et chantier trois V, en encadrés colorés.*
 
 ## Contenu du dépôt
 
@@ -49,6 +49,22 @@ Prérequis : AWS CLI v2 et Python 3. L'authentification passe par `aws login` (O
    Airflow tourne en Docker local ; `docker-compose.exemple.yaml` est le fichier de déploiement, avec les mots de passe remplacés par des variables à définir. Ces variables sont `AIRFLOW_DB_PASSWORD` (base PostgreSQL d'Airflow) et `AIRFLOW_ADMIN_PASSWORD` (compte administrateur de l'interface). Elles se définissent dans `orchestration/.env`, ignoré par Git. Copier l'exemple en `docker-compose.yaml` avant `docker compose up`.
 5. Chantier trois V, depuis `soundlab-3v/` : droits (`infra/3v_03`, `3v_12`), machine de chargement (`3v_13_machine_chargement.json`, `3v_14_deployer_machine.zsh`), planification quotidienne (`3v_15_planifier_chargement.zsh`), catalogue (`3v_76_catalogue_lb.sh`), alarmes (`3v_80_alarmes.sh`), entrepôt (`sql/3v_70_entrepot_lb.sql` via `../soundlab-analytics/infra/rs.sh`).
 
+## Chantier trois V
+
+### Entrepôt ListenBrainz
+
+Le schéma Redshift `soundlab_lb` contient une table de faits jour × titre, sans jeton d'auditeur : 520 186 856 groupes et 719 824 922 écoutes. Elle est distribuée par `DISTKEY (recording_msid)` et triée sur `date_jour` (`sql/3v_70_entrepot_lb.sql`).
+Les dumps incrémentaux y sont fusionnés par `MERGE` (`sql/3v_74_fusion_incr.sql`). La table externe Glue `lb_faits_jour` est déclarée par `infra/3v_76_catalogue_lb.sh` et lue par `sql/3v_77_externe_lb.sql`.
+Les alarmes de la chaîne quotidienne sont créées par `infra/3v_80_alarmes.sh`.
+
+> Chiffres : document de conception du Bloc 2 ; également dans `soundlab-3v/sql/3v_70_entrepot_lb.sql`, lignes 194-195.
+
+## Architecture v1
+
+![Architecture v1](docs/architecture.png)
+
+*Architecture v1, telle que livrée au Bloc 6.* Version vectorielle : [`docs/architecture.svg`](docs/architecture.svg).
+
 ## RGPD et sécurité
 
 - **Pseudonymisation avant tout stockage durable.** v1 : `user_id_hash = SHA-256(sel || user_id)`, tronqué à 128 bits, avec un contrôle anti-collision bloquant (journal technique § 7.2). Trois V : jeton HMAC-SHA-256 salé, tronqué à 128 bits, calculé en chemin, flux en mémoire, `user_name` supprimé, avec un sel distinct de celui de la v1 (`06_aipd_avenant_trois_v.md` § 3).
@@ -65,7 +81,7 @@ Prérequis : AWS CLI v2 et Python 3. L'authentification passe par `aws login` (O
 
 | Critère | Où le vérifier |
 |---|---|
-| Pertinence de l'architecture | `docs/architecture.png` ; `soundlab-analytics/docs/00_journal_technique.md` § 2 et § 2.1 (arbitrages : EMR Serverless, Redshift Serverless, Parquet + Snappy, région) ; `docs/02_benchmarks_redshift.md` |
+| Pertinence de l'architecture | `docs/architecture_v1_3v.png` (consolidée) et `docs/architecture.png` (v1) ; `soundlab-analytics/docs/00_journal_technique.md` § 2 et § 2.1 (arbitrages : EMR Serverless, Redshift Serverless, Parquet + Snappy, région) ; `docs/02_benchmarks_redshift.md` |
 | Robustesse — **Volume** | `soundlab-3v/docs/05_journal_trois_v.md`, phase 1 : 695 656 837 écoutes ingérées (§ 1.2), montée en charge par paliers (§ 1.3), dimensionnement dérivé du volume dans `jobs/3v_23_agregation_mois.py` (§ 1.4) ; `soundlab-analytics/sql/montee_en_charge/` |
 | Robustesse — **Variété** | Aplatissement du JSON (`jobs/3v_24_aplatissement.py`), contrat de schéma (`config/3v_contrat_listenbrainz_v1.json`), source relationnelle MusicBrainz (`ingestion/3v_15`, `jobs/3v_26` à `3v_29`), porte de qualité (`jobs/3v_30_porte_qualite_3v.py`) — journal trois V, tâches 2.1 à 2.5 |
 | Robustesse — **Vélocité** | Chargement incrémental idempotent (`infra/3v_09_charger_incremental.py`, tâche 3.1), données en retard (tâche 3.2), chargement quotidien par EventBridge, Step Functions et Lambda (`infra/3v_13` à `3v_15`, `lambda/`, tâche 3.3), fraîcheur et alarmes (`infra/3v_17`, `3v_80_alarmes.sh`, tâche 5.1) |

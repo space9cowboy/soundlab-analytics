@@ -4,7 +4,7 @@
 --
 --    ../soundlab-analytics/infra/rs.sh sql/3v_72_temoin_melange.sql
 --
---  Soupçon (27/09) : fait_ecoutes_jour_naif a été rempli par INSERT … SELECT *
+--  Soupçon : fait_ecoutes_jour_naif a été rempli par INSERT … SELECT *
 --  depuis la table triée par date ; ses blocs sont probablement rangés par date
 --  par accident, ce qui donnerait au témoin des zone maps efficaces et viderait
 --  le scénario C de son sens. sys_query_detail n'a pas permis de trancher

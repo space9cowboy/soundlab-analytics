@@ -17,10 +17,10 @@
 --  et auditeurs. La partie complet doit rester intacte tout du long.
 --
 --  stg_incr contient déjà la sortie courante de 3v_61 (chargée par 3v_70).
---  Première instruction : suppression du témoin mélangé (accord de Loïc, 27/09).
+--  Première instruction : suppression du témoin mélangé (avec accord).
 -- =============================================================================
 
--- @ Suppression du temoin melange (accord du 27/09)
+-- @ Suppression du temoin melange (avec accord)
 DROP TABLE IF EXISTS soundlab_lb.fait_ecoutes_jour_naif_melange;
 
 -- @ Empreinte 0 · etat initial (incr)

@@ -1,8 +1,8 @@
 # Journal technique — chantier « les trois V »
 
-Journal propre au chantier ouvert le 24/09/2026. Le journal du Bloc 6 (`00_journal_technique.md`) est figé et n'est pas modifié.
+Journal propre au chantier trois V. Le journal du Bloc 6 (`00_journal_technique.md`) est figé et n'est pas modifié.
 
-## 24/09/2026 — Tâche 0.1 : licences des sources
+## Tâche 0.1 : licences des sources
 
 ### Décision
 
@@ -39,7 +39,7 @@ La CC0 ne lève aucune obligation au titre du RGPD : son § 4 exclut expliciteme
 - Taux de compression d'au moins 6,2 (borne basse mesurée), soit au moins 1,5 To décompressé pour le dump entier (extrapolation, à mesurer).
 - Incrémentaux quotidiens de 228 Mo (22/09) et 237 Mo (23/09), un incrémental de 3 195 octets le 23/09, rétention d'environ un mois.
 
-## 24/09/2026 — Tâche 0.4 : zone brute datée
+## Tâche 0.4 : zone brute datée
 
 ### Convention de partition
 
@@ -47,13 +47,13 @@ Tout objet ListenBrainz de la zone brute a une clé de la forme `listenbrainz/ec
 
 ### Cycle de vie
 
-Règle `lb-brut-31j` sur `listenbrainz/` : expiration à 30 jours, versions non courantes purgées à 1 jour, téléversements incomplets purgés à 1 jour. La règle `retention-rgpd` du Bloc 6 (365 jours, tout le compartiment) est conservée à l'identique ; sur le chevauchement, S3 applique l'expiration la plus courte. Un objet témoin non personnel, `listenbrainz/ecoutes/date=2026-09-24/_temoin_cycle_de_vie.txt`, permettra de constater l'effacement effectif à partir du 25/10/2026.
+Règle `lb-brut-31j` sur `listenbrainz/` : expiration à 30 jours, versions non courantes purgées à 1 jour, téléversements incomplets purgés à 1 jour. La règle `retention-rgpd` du Bloc 6 (365 jours, tout le compartiment) est conservée à l'identique ; sur le chevauchement, S3 applique l'expiration la plus courte. Un objet témoin non personnel, `listenbrainz/ecoutes/date=2026-09-24/_temoin_cycle_de_vie.txt`, permettra de constater l'effacement effectif 31 jours après son dépôt.
 
 ### Secret
 
 Sel propre à ListenBrainz : `soundlab/pseudonymisation-salt-listenbrainz`, 64 caractères hexadécimaux, chiffré par la même clé KMS que le sel du Bloc 6, distinct de celui-ci (empreintes comparées sans affichage).
 
-## 24/09/2026 — Phase 1 : volume réel (tâches 1.1 à 1.4)
+## Phase 1 : volume réel (tâches 1.1 à 1.4)
 
 ### 1.1 — Rapatriement en flux
 
@@ -82,7 +82,7 @@ Constat : 66,8 fois moins d'auditeurs que le jeu Kaggle pour 71,6 fois plus d'é
 | P2 (2015-11 → 2016-12) | 99 785 982 | 0,00646 |
 | P3 (2010-08 → 2016-12) | 485 194 425 | 0,00462 |
 
-Pas de courbe en U : coût fixe plus coût linéaire. Expérience témoin sur le job 08 à 50× : multiplier les partitions de brassage par 5 ne change rien ; retirer le `.cache()` divise le coût par deux (2,568 → 1,379 vCPU-h, deux passages à 3,8 % près). La sur-linéarité du 22/09 venait du cache, pas de la réplication. Le job 08 appartient au rendu figé : non modifié.
+Pas de courbe en U : coût fixe plus coût linéaire. Expérience témoin sur le job 08 à 50× : multiplier les partitions de brassage par 5 ne change rien ; retirer le `.cache()` divise le coût par deux (2,568 → 1,379 vCPU-h, deux passages à 3,8 % près). La sur-linéarité observée auparavant venait du cache, pas de la réplication. Le job 08 appartient au rendu figé : non modifié.
 
 ### 1.4 — Dimensionnement dérivé du volume
 
@@ -100,7 +100,7 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 | Glue `soundlab_curated.mc_listening_history_x50_p240`, `_x50_sanscache` | tables des témoins |
 | `jobs/3v_temoin_08_sans_cache.py` | copie du job 08 sans cache |
 
-## Tâche 2.1 — Ingestion JSON : aplatissement des structures imbriquées (24-25/09/2026)
+## Tâche 2.1 — Ingestion JSON : aplatissement des structures imbriquées
 
 **Relevé de structure** (`ingestion/3v_13_releve_schema.py`, 2 000 lignes du premier jour de chaque mois, 171 mois) : 70 chemins, dont 46 clés sous `additional_info` ; un conflit de type réel (`tracknumber` entier ou texte) ; une même information sous plusieurs noms (`recording_mbid` / `track_mbid` / `mbid_mapping.recording_mbid`) ; un tableau d'objets (`mbid_mapping.artists[]`). Limite : les mois sont des dates d'écoute, pas d'envoi.
 
@@ -120,7 +120,7 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 | Sortie | 433 fichiers, 53,3 Go, 76,6 o/ligne (Parquet zstd) |
 | Coût | 14,426 vCPU-h, 5 910 s |
 
-**Écart de minimisation détecté par le comptage des clés inconnues** : `ip_addr` (et 12 clés de l'historique étendu Spotify) sur 54 606 lignes, 1 036 jours, 2011-08 à 2016-12 ; `source_ip` sur 12 lignes, le 27/02/2015. Cause : l'ingestion supprimait une liste noire de champs ; le relevé par échantillon ne les avait pas vus. Purge par `ingestion/3v_14_purge_cles.py` depuis le Mac (le rôle EMR n'écrit pas `ecoutes/`), validée par Loïc ; vérification indépendante par `jobs/3v_25_cles_sensibles_brut.py` : 0 ligne touchée, 695 656 837 lignes conservées. Versions S3 non courantes laissées à l'expiration à 1 jour (contrôle prévu le 27/09).
+**Écart de minimisation détecté par le comptage des clés inconnues** : `ip_addr` (et 12 clés de l'historique étendu Spotify) sur 54 606 lignes, 1 036 jours, 2011-08 à 2016-12 ; `source_ip` sur 12 lignes, le 27/02/2015. Cause : l'ingestion supprimait une liste noire de champs ; le relevé par échantillon ne les avait pas vus. Purge par `ingestion/3v_14_purge_cles.py` depuis le Mac (le rôle EMR n'écrit pas `ecoutes/`), validée par Loïc ; vérification indépendante par `jobs/3v_25_cles_sensibles_brut.py` : 0 ligne touchée, 695 656 837 lignes conservées. Versions S3 non courantes laissées à l'expiration à 1 jour (contrôle prévu : action B9).
 
 **Droits** : politique distincte `SoundLab3VEcritureDerivesBrut` (écriture sur `aplati/*` et `rebut/*` seulement), vérifiée au simulateur IAM chemin par chemin ; politique du Bloc 6 inchangée.
 
@@ -131,7 +131,7 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 - `os.killpg` renvoie `EPERM` sur macOS pour un groupe terminé ; `spark.conf.get` refuse une valeur de repli non booléenne.
 - Minimisation par liste noire insuffisante face à la variété : l'ingestion doit passer en liste blanche (action B8).
 
-## Tâche 2.2 — Évolution de schéma : contrat et arrêt nommé (25/09/2026)
+## Tâche 2.2 — Évolution de schéma : contrat et arrêt nommé
 
 **Contrat de schéma v1** (`config/3v_contrat_listenbrainz_v1.json`, publié sous `s3://soundlab-scripts-558852/trois_v/contrats/`) : 51 champs gardés typés (texte, entier, booléen, liste, objet, texte ou entier), 36 champs écartés, 14 purgés, 6 interdits. Le job `3v_24` v3 en déduit son schéma et contrôle avant toute écriture.
 
@@ -149,7 +149,7 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 
 **Erreur et leçon** : sortie de test placée dans le compartiment des journaux, où le rôle EMR écrit sans pouvoir relire (403 à la vérification). Leçon : un emplacement de sortie doit être lisible par le job qui s'y vérifie. Deux objets fictifs restent sous `logs/trois_v/tests/contrat/temoin/` (vestige).
 
-## Tâche 2.3 — Source relationnelle MusicBrainz (25-26/09/2026)
+## Tâche 2.3 — Source relationnelle MusicBrainz
 
 **Source** : dump canonique MusicBrainz du 17/09/2026 (`canonical_data/`, 2 367 116 162 octets, SHA-256 conforme à la valeur publiée). Licence lue dans l'archive (`COPYING`) : CC0 1.0. Écartés : `mbdump.tar.bz2` (7,56 Go, CC0, format PostgreSQL), `mbdump-derived` (tags et notes, CC BY-NC-SA), correspondance MSID→MBID de juin 2020 (`labs/`, licence non vérifiée, option ultérieure).
 
@@ -175,7 +175,7 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 
 **Erreurs d'estimation** : ingestion estimée à 20-40 min (45 s réelles) ; jointure estimée à 5-10 vCPU-h (2,0 réels).
 
-## Tâche 2.4 — Étiquettes textuelles MusicBrainz (26/09/2026)
+## Tâche 2.4 — Étiquettes textuelles MusicBrainz
 
 **Sources et licences, lues dans les archives.** `mbdump-derived.tar.bz2` du dump `20260923-002121` (518 825 123 octets, SHA-256 conforme à `SHA256SUMS`) : `COPYING` = CC BY-NC-SA 3.0 US. Décision de Loïc : usage strictement académique (option a). Pour relier les étiquettes aux MBID, `mbdump.tar.bz2` du même dump (7 555 519 494 octets, SHA-256 conforme, CC0 1.0) est lu en flux sans être stocké ; seules les colonnes `id` et `gid` de `recording` sont gardées (40 301 761 lignes, 9 colonnes à la source, 7 min 41 s, `ingestion/3v_16_recording_id_gid.zsh`). Zone brute : 1,04 Go déposés (`musicbrainz/derived/20260923-002121/nc_sa/` avec `COPYING`, `musicbrainz/core/20260923-002121/recording_id_gid/`), chiffrés KMS, métadonnées `licence` et `usage`.
 
@@ -196,9 +196,9 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 
 **Contrôle des fusions.** 254 étiquettes du vocabulaire regroupent plusieurs noms bruts ; les 103 qui impliquent `/` ou `&` ont été relues une à une : aucune ne réunit deux genres sous un troisième qui leur serait étranger, aucune exception ajoutée. Limites : `/` au sens « ou » des catégories parapluie (`pop/rock`, `folk/world/country`) est fondu dans le genre composé ; les équivalents d'ordre ou de graphie (`hip hop rap` / `rap hip hop`, `r and b` / `r b` / `rnb`, `rock pop` / `pop rock`) restent distincts faute de règle mesurée ; 82 % des associations reposent sur un seul vote.
 
-**Erreurs d'estimation et de méthode.** Extraction estimée à 20-60 min (7 min 41 s) ; job estimé à 1-3 vCPU-h (0,559). Archive `mbdump-derived` supposée présente sur le poste alors que le sondage l'avait lue à distance ; bloc heredoc collé non exécuté, remplacé par un script livré avec empreinte ; interprétation « écriture finie à 08:46 » démentie par la mesure (08:50).
+**Erreurs d'estimation et de méthode.** Extraction estimée à 20-60 min (7 min 41 s) ; job estimé à 1-3 vCPU-h (0,559). Archive `mbdump-derived` supposée présente sur le poste alors que le sondage l'avait lue à distance ; bloc heredoc collé non exécuté, remplacé par un script livré avec empreinte ; interprétation « écriture finie » démentie par la mesure (4 minutes plus tard).
 
-## Tâche 2.5 — Porte de qualité des nouvelles natures (26/09/2026)
+## Tâche 2.5 — Porte de qualité des nouvelles natures
 
 **Principe.** Nouveau job `jobs/3v_30_porte_qualite_3v.py`, sur le modèle de la porte du Bloc 6 (`09_tests_qualite.py`, figée, non modifiée) : registre de contrôles, seuils justifiés, rapport JSON sous `curated/trois_v/_rapports/qualite/`, code de sortie 1 dès qu'un contrôle bloquant échoue. Contrôles validés par Loïc :
 
@@ -213,7 +213,7 @@ Décisions validées : grain jour, partitionnement par mois ; seuil minimal d'au
 | Q7 | étiquettes NC-SA | bloquant | paramètres `licence` et `usage` exacts (B11) ; vocabulaire unique, ≥ 100, complet |
 | Q8 | publication | bloquant | 0 ligne sous *k* (B7) ; *k* de test = 5, *k* définitif en 5.3 (B6) |
 
-**Seuils de Q5, mesurés.** Mois (manifestes, 171 mois, total 695 656 837 conforme) : ratio au médian des 12 mois précédents compris entre 0,939 et 2,98 hors 2005-02 à 2005-07 ; 2005-02 compte 2 544 740 écoutes contre 141 en 2005-01 (changement de régime puis pic). Seuils : > 5 ou < 0,5. Incrémentaux ListenBrainz : publiés **chaque jour** (et non deux fois par semaine comme l'indiquait le document de reprise) ; sur 30 dumps du 02 au 26/09/2026, 25 pèsent de 195 361 983 à 388 649 913 octets et 5 dumps de minuit (2673, 2675, 2677, 2679, 2681), publiés le même jour qu'un dump plein, de 2 860 à 3 574 octets — dont celui de 3 195 octets relevé le 23/09. Ratio des lots normaux au médian des 14 précédents : 0,692 à 1,505. Seuils : > 5 ou < 0,2.
+**Seuils de Q5, mesurés.** Mois (manifestes, 171 mois, total 695 656 837 conforme) : ratio au médian des 12 mois précédents compris entre 0,939 et 2,98 hors 2005-02 à 2005-07 ; 2005-02 compte 2 544 740 écoutes contre 141 en 2005-01 (changement de régime puis pic). Seuils : > 5 ou < 0,5. Incrémentaux ListenBrainz : publiés **chaque jour** (et non deux fois par semaine comme l'indiquait le document de reprise) ; sur 30 dumps du 02 au 26/09/2026, 25 pèsent de 195 361 983 à 388 649 913 octets et 5 dumps de minuit (2673, 2675, 2677, 2679, 2681), publiés le même jour qu'un dump plein, de 2 860 à 3 574 octets — dont celui de 3 195 octets du 23/09 (§ 0.1). Ratio des lots normaux au médian des 14 précédents : 0,692 à 1,505. Seuils : > 5 ou < 0,2.
 
 **Démonstration.** Jeu sain : données réelles (lot brut `date=2016-12-3*`, 462 763 lignes ; table aplatie complète, 695 640 731 lignes ; référentiel, correspondance et étiquettes réels), table de publication synthétique, séries de volumes sans les lots anormaux. Jeu dégradé : 10 fichiers synthétiques sous `curated/trois_v/_tests/qualite/degrade/` (clé nouvelle, `user_name` et `tags`, colonne en trop, identifiant en clair, date et mois faux, clé MusicBrainz en double et non UUID, MBID inconnu, `part` nulle, table sans licence et table absente, étiquette en double, sous le seuil et hors vocabulaire, titre sous *k*) et séries de volumes complètes.
 
@@ -230,7 +230,7 @@ Vérification indépendante (`infra/3v_07_verif_porte.py`) : `VERIF_PORTE_OK` �
 
 **Erreurs.** Défaut de code trouvé au test local : une lambda à deux paramètres dans `F.transform` recevait l'indice au lieu du préfixe, ce qui mettait des clés à `null`. Estimations : jeu dégradé annoncé à 0,2-0,3 vCPU-h (0,076 mesurés) ; document de reprise erroné sur la fréquence des incrémentaux.
 
-## Action B8 — Ingestion ListenBrainz en liste blanche (26/09/2026)
+## Action B8 — Ingestion ListenBrainz en liste blanche
 
 **Constat de départ.** `ingestion/3v_10` v1 fonctionnait en liste noire : pseudonymisation de `user_id`, retrait de `user_name` et de cinq clés sous `additional_info` seulement ; tout le reste était stocké (d'où `ip_addr` en 2.1). Sur le premier incrémental lu, 22 clés inconnues du contrat v1 apparaissent dès 50 000 lignes, dont `comment` (texte libre) et `tm.tags` (interdite, mais à un niveau que la liste noire ne purgeait pas).
 
@@ -253,7 +253,7 @@ Clés retirées sur 2674 : 10 564 862 occurrences interdites ou purgées, 4 255 
 
 **Reste ouvert.** Revue des 43 clés inconnues avant un éventuel contrat v2 (B10) ; répartition des écoutes de transit par date et dédoublonnage (3.1, 3.2) ; contrôle de continuité des bornes START/END entre dumps (3.1).
 
-## Tâche 3.1 — Chargement incrémental daté (26/09/2026)
+## Tâche 3.1 — Chargement incrémental daté
 
 **Mesures préalables** (`jobs/3v_31_mesure_recouvrement.py`, 556 s, 1,363 vCPU-h) sur la zone de transit (5 008 272 écoutes) : 0 doublon sur le triplet (`user_id`, horodatage, `recording_msid`), ni dans un dump ni entre dumps ; la paire (`user_id`, horodatage) n'est pas une clé (168 154 groupes, 207 453 lignes « en trop », imports en bloc à la même seconde). 136 mois communs avec la table aplatie du dump complet (528 329 écoutes) : recouvrement 0 sur le triplet, 7 sur (horodatage, `msid`) sans `user_id`. Même sel des deux côtés (`jobs/3v_32_verif_sel.py`) : 5 221 des 24 678 auditeurs de la zone de transit (21,16 %) existent dans la table aplatie (14 394 auditeurs) ; un sel différent donnerait 0.
 
@@ -287,7 +287,7 @@ L'autotest simulant un double chargement fait bien varier lignes et somme (`DETE
 
 **Erreurs.** Zip du chargement préparé mais non envoyé au premier essai (même oubli qu'en 2.1). Estimations : chargement de 2674 annoncé à 0,3-0,8 vCPU-h (0,655 mesurés, conforme).
 
-## Tâche 3.2 — Données arrivées en retard (26/09/2026)
+## Tâche 3.2 — Données arrivées en retard
 
 **Mesure** (`jobs/3v_34_mesure_retard.py`, 0,1 vCPU-h) du retard entre date d'écoute et jour de réception, dump 2674 (reçu le 22/09) :
 
@@ -313,7 +313,7 @@ Retard médian 668 jours (P90 3 641). Une partition par jour pour tout le dump d
 
 **Limites.** Le seuil de 30 jours repose sur un seul dump. Les 284 fichiers par dump restent de petite taille pour la plupart (compactage toujours à prévoir). La porte `3v_30` (Q3) attend les colonnes de la table du dump complet et devra être adaptée pour lire `aplati_incr`.
 
-## Tâche 3.3 — Chargement quotidien sans intervention (26/09/2026)
+## Tâche 3.3 — Chargement quotidien sans intervention
 
 **Constats.** Le DAG `10_pipeline_soundlab.py` (gelé) n'a pas de planification et les jetons d'Airflow durent 4 h : il ne peut pas porter un chargement quotidien. L'application EMR Serverless, sans VPC, n'a pas d'accès Internet (`jobs/3v_36_test_sortie.py` : délai dépassé) : Spark ne peut pas télécharger les dumps. Une fonction Lambda a cet accès (sonde vérifiée).
 
@@ -326,15 +326,15 @@ Retard médian 668 jours (P90 3 641). Une partition par jour pour tout le dump d
 - Rôles `SoundLab3VLambdaPilotage` (17/17), `SoundLab3VStepFunctionsChargement` (14/14), `SoundLab3VSchedulerChargement` (4/4), simulés chemin par chemin avec des cas refusés. Piège relevé : en zsh, `$COMPTE:stateMachine` applique le modificateur `:s` ; toutes les variables des scripts sont entre accolades.
 - Machine `soundlab-3v-chargement-incremental` (`infra/3v_13_machine_chargement.json`, validée par AWS), planification `soundlab-3v-chargement-quotidien`, `cron(0 2 * * ? *)` UTC.
 
-**Premier essai et incident.** Déclenché par le Scheduler à 14:54 : 2676 à 2679 chargés (ingestion de 2676 : 131 s), arrêt sur 2680 : `CONTRAT_ECHEC`, `TYPE_MODIFIE ai.music_service attendu texte vu booleen`, 1 ligne sur 6 354 984, aucune écriture (0 fichier `dump=2680`), 0,526 vCPU-h. Spark convertit silencieusement le booléen en texte ; seul le repérage des lignes suspectes l'avait détecté. Planification quotidienne désactivée le temps du correctif.
+**Premier essai et incident.** Déclenché par une planification unique du Scheduler : 2676 à 2679 chargés (ingestion de 2676 : 131 s), arrêt sur 2680 : `CONTRAT_ECHEC`, `TYPE_MODIFIE ai.music_service attendu texte vu booleen`, 1 ligne sur 6 354 984, aucune écriture (0 fichier `dump=2680`), 0,526 vCPU-h. Spark convertit silencieusement le booléen en texte ; seul le repérage des lignes suspectes l'avait détecté. Planification quotidienne désactivée le temps du correctif.
 
 **Décision de Loïc : rebut sous seuil.** `jobs/3v_24_aplatissement.py` v6 : une ligne dont un champ gardé a changé de type part au rebut avec le motif `type_modifie:<champ>`, si ces lignes restent ≤ 0,01 % des lignes lues et touchent au plus un champ ; au-delà, échec du contrat sans écriture, comme en v5. 7 tests Spark locaux (`infra/3v_16_test_type_modifie.py`, Spark 3.5.8) dont la v5 sur le même lot (échec attendu) ; doubler les seuils fait échouer les deux cas hors seuil. v5 archivée sous `s3://soundlab-scripts-558852/jobs/_archives/`.
 
-**Preuve du critère.** Essai 2, déclenché par le Scheduler à 16:50, sans intervention : 2680 et 2681 chargés en 24 min 30 s (ingestion de 2680 : 228 s). 2680 : `LUES 6354984 ATTENDU 6354984`, 1 ligne au rebut `type_modifie:ai.music_service` (taux 1,6e-07, `TOLERE`), `CONTRAT_OK`, `JOURS_INCOHERENTS 0`, `SORTIE LIGNES 6354983`, `REBUT_RELU 1`, `APLATI_OK`, 1,414 vCPU-h. Exécution lancée aussitôt après : `RIEN_A_CHARGER` en 0,7 s, ni ingestion ni job EMR, registre inchangé. Registre : 2674 à 2681, tous `SUITE` après 2674, début de chaque dump égal à la fin du précédent. **Un dump publié est chargé sans intervention ; une exécution sans nouveau dump ne fait rien.**
+**Preuve du critère.** Essai 2, déclenché par le Scheduler sans intervention : 2680 et 2681 chargés en 24 min 30 s (ingestion de 2680 : 228 s). 2680 : `LUES 6354984 ATTENDU 6354984`, 1 ligne au rebut `type_modifie:ai.music_service` (taux 1,6e-07, `TOLERE`), `CONTRAT_OK`, `JOURS_INCOHERENTS 0`, `SORTIE LIGNES 6354983`, `REBUT_RELU 1`, `APLATI_OK`, 1,414 vCPU-h. Exécution lancée aussitôt après : `RIEN_A_CHARGER` en 0,7 s, ni ingestion ni job EMR, registre inchangé. Registre : 2674 à 2681, tous `SUITE` après 2674, début de chaque dump égal à la fin du précédent. **Un dump publié est chargé sans intervention ; une exécution sans nouveau dump ne fait rien.**
 
-**Limites.** Le déclenchement par l'expression quotidienne (02:00 UTC) a été constaté le 27/09 (section « Tâche 3.3 (suite) »). Alerte partielle : un échec du job EMR déclenche l'alarme héritée du Bloc 6 `soundlab-emr-jobs-en-echec` (`FailedJobs` ≥ 1 sur l'application, courriel par la rubrique SNS `soundlab-alertes`), constaté sur 2680 : `ALARM` à 15:32:28, une minute après l'échec, notifications délivrées 1 puis 1 (alarme puis retour), 0 en échec. Un échec du Lambda d'ingestion, une rupture de continuité ou un déclenchement manqué n'alertent pas (E5). Le seuil de tolérance repose sur un seul cas réel. Coût de 2680 en v6 environ 1,6 fois celui de 2674 en v5 par écoute ; hypothèse non vérifiée : la fonction Python reçoit une valeur (nulle pour la plupart) sur chaque ligne et la table intermédiaire est recalculée à chaque passage. Compactage d'`aplati_incr` et adaptation de la porte `3v_30` toujours à faire.
+**Limites.** Le déclenchement par l'expression quotidienne (02:00 UTC) a été constaté ensuite (section « Tâche 3.3 (suite) »). Alerte partielle : un échec du job EMR déclenche l'alarme héritée du Bloc 6 `soundlab-emr-jobs-en-echec` (`FailedJobs` ≥ 1 sur l'application, courriel par la rubrique SNS `soundlab-alertes`), constaté sur 2680 : `ALARM` une minute après l'échec, notifications délivrées 1 puis 1 (alarme puis retour), 0 en échec. Un échec du Lambda d'ingestion, une rupture de continuité ou un déclenchement manqué n'alertent pas (E5). Le seuil de tolérance repose sur un seul cas réel. Coût de 2680 en v6 environ 1,6 fois celui de 2674 en v5 par écoute ; hypothèse non vérifiée : la fonction Python reçoit une valeur (nulle pour la plupart) sur chaque ligne et la table intermédiaire est recalculée à chaque passage. Compactage d'`aplati_incr` et adaptation de la porte `3v_30` toujours à faire.
 
-## Analyse des données trois V — tâches AN1 à AN5 (26-27/09/2026)
+## Analyse des données trois V — tâches AN1 à AN5
 
 **Question.** Les écoutes ListenBrainz changent-elles la cible et la performance du modèle du Bloc 6 ? Même modèle (forêt aléatoire de 300 arbres, graine 42), même protocole ; aucun livrable figé modifié. Sorties sous `curated/trois_v/analyse/an1/` : identifiants de titres et comptages, aucune donnée d'auditeur.
 
@@ -396,7 +396,7 @@ Auditeurs distincts et représentativité mesurés ensuite (sous-section AN2 et 
 
 **Erreurs.** Deux hypothèses annoncées puis réfutées par leur propre mesure (kappa, effet d'âge). Deux tests locaux trop faibles corrigés avant livraison : une mutation (voie clé retirée, puis cible LB remplacée par la cible Kaggle) passait inaperçue. Estimation AN1 : 1,5 à 2,5 vCPU-h annoncés, 1,401 mesurés.
 
-### AN2 et AN4 — Auditeurs distincts et représentativité (27/09/2026)
+### AN2 et AN4 — Auditeurs distincts et représentativité
 
 `jobs/3v_42_auditeurs_representativite.py` (test de bout en bout `infra/3v_25_test_an24.py` 15/15), 586 s, 1,514 vCPU-h. Contrôles : correspondance d'AN1 recalculée sans ambiguïté, 695 640 731 écoutes dont 135 259 030 couvertes, 29 315 titres communs, cible volume d'AN3 reproduite (seuil 2 802, κ 0,2476). Sortie `an2_auditeurs_par_titre` (48 671 lignes, sans jeton).
 
@@ -418,11 +418,11 @@ Spearman des parts par artiste (1 772 artistes d'au moins 5 titres) : 0,6374. Le
 
 **Lecture.** Le désaccord entre les deux cibles s'explique par la composition des publics, pas par la mesure : ListenBrainz sur-représente le rock, le metal et les catalogues anciens, et sous-représente la country, la pop et le rap grand public. Hypothèse non mesurée : un décalage de période entre les deux sources (plusieurs artistes sur-représentés ont percé après 2010).
 
-**Erreur de gouvernance.** Les deux tables intermédiaires de `3v_42` (`_tmp_an2_titre_jeton`, `_tmp_an2_jeton`) portaient des jetons pseudonymisés et ont été écrites en zone affinée (rétention 730 jours), contre l'amendement n° 1. Supprimées le 27/09 avec l'accord de Loïc (416 objets, versions comprises, 0 restant) ; consigné dans l'AIPD (amendement n° 9, action B13). Leçon : une table intermédiaire à jetons va dans le compartiment brut, sous l'expiration à 30 jours.
+**Erreur de gouvernance.** Les deux tables intermédiaires de `3v_42` (`_tmp_an2_titre_jeton`, `_tmp_an2_jeton`) portaient des jetons pseudonymisés et ont été écrites en zone affinée (rétention 730 jours), contre l'amendement n° 1. Supprimées avec l'accord de Loïc (416 objets, versions comprises, 0 restant) ; consigné dans l'AIPD (amendement n° 9, action B13). Leçon : une table intermédiaire à jetons va dans le compartiment brut, sous l'expiration à 30 jours.
 
-## Tâche 3.3 (suite) — Exécution planifiée du 27/09 et dump vide
+## Tâche 3.3 (suite) — Exécution planifiée et dump vide
 
-**Constat.** Planification `ENABLED`, `cron(0 2 * * ? *)`. Exécution `d16ab878-a051-4c22-a280-209a92d7b8b6` démarrée par le planificateur à 02:00:27 UTC, sans intervention. Plan : 2682 et 2683. Dump 2682 chargé (job EMR `SUCCESS`, 5 055 339 lignes, inscrit au registre, début égal à la fin de 2681). Échec à 02:15:39 UTC sur 2683.
+**Constat.** Planification `ENABLED`, `cron(0 2 * * ? *)`. Exécution `d16ab878-a051-4c22-a280-209a92d7b8b6` démarrée par le planificateur à l'heure prévue (27 s après 02:00 UTC), sans intervention. Plan : 2682 et 2683. Dump 2682 chargé (job EMR `SUCCESS`, 5 055 339 lignes, inscrit au registre, début égal à la fin de 2681). Échec sur 2683, 15 min 12 s après le démarrage.
 
 **Cause.** 2683 est une tranche de minuit **vide** : 0 écoute au manifeste, `LUES 0 ATTENDU 0`, `CONTRAT_OK`, 0 rebut, 0 incognito. La v6 plantait sur le calcul du plan d'écriture (`max()` sur un plan vide) et exigeait de toute façon au moins une ligne écrite. Défaut de conception : le dump vide n'avait pas été prévu. Anomalie de la source : la fenêtre publiée pour 2683 a une durée négative (fin `00:00:03.401226`, début `00:00:03.412365`) ; son début raccorde bien la fin de 2682.
 
@@ -430,23 +430,23 @@ Spearman des parts par artiste (1 772 artistes d'au moins 5 titres) : 0,6374. Le
 
 **Reprise.** Exécution manuelle `reprise-2683-v7-20260927` : `SUCCEEDED` en 3 min 9 s. Registre : 10 entrées, 2674 à 2683, aucune rupture ; 2683 inscrit avec 0 ligne. **Critère de la tâche 3.3 atteint** : la planification déclenche seule et charge sans intervention ; le seul échec venait d'un cas limite de la source, arrêté sans écriture, diagnostiqué, corrigé et testé. La limite « déclenchement à constater » de la section 3.3 est levée.
 
-**Effacement effectif (action B9).** Le 27/09 à 00:35 UTC, 1 038 versions non courantes subsistaient sous `listenbrainz/ecoutes/` (1 037 jours, dont les 1 036 jours touchés par `ip_addr` et le 27/02/2015 par `source_ip`), avec la règle `lb-brut-31j` active et correcte. Les plus anciennes sont éligibles depuis le 26/09 à 00:00 UTC : S3 applique l'expiration en différé. Nouveau contrôle le 28/09 au matin ; suppression manuelle des versions non courantes s'il en reste.
+**Effacement effectif (action B9).** Au premier contrôle, 1 038 versions non courantes subsistaient sous `listenbrainz/ecoutes/` (1 037 jours, dont les 1 036 jours touchés par `ip_addr` et le 27/02/2015 par `source_ip`), avec la règle `lb-brut-31j` active et correcte. Les plus anciennes sont déjà éligibles : S3 applique l'expiration en différé. Un nouveau contrôle est prévu ; suppression manuelle des versions non courantes s'il en reste.
 
 **Erreurs.** Cas du dump vide non prévu en conception ni en test. Échéance de B9 fixée sans tenir compte du délai d'application des règles de cycle de vie. Commande de comptage fausse (`length()` sur une liste vide renvoyée `null`), remplacée par un comptage Python avec contre-épreuve.
 
-## Tâche 5.1 — Fraîcheur des données (26-27/09/2026)
+## Tâche 5.1 — Fraîcheur des données
 
 **Définition.** Lambda `soundlab-3v-pilotage` v3, action `inscrire` : avant d'écrire le registre, publication dans l'espace CloudWatch `SoundLab/3V` (dimension `Source=ListenBrainz`) de `FraicheurDisponibiliteSecondes` (heure d'inscription moins `END_TIMESTAMP` du dump), `PartEcoutesRecentesPourcent` (écoutes rangées en `jour=`, retard ≤ 30 jours) et `EcoutesChargees`. Tests `infra/3v_11` v3 32/32 ; rôle de pilotage v2 (`PutMetricData` limité à `SoundLab/3V`) 19/19 par simulation ; tableau `soundlab-3v` (5 widgets, période 60 s, axe en heures) ; tableau du Bloc 6 non modifié.
 
-**Reprise des 6 dumps du 26/09** (`infra/3v_18`) et relecture le 27/09 : exactement 6 points, un par dump (`SampleCount` 1, minimum égal au maximum).
+**Reprise des 6 dumps 2676 à 2681** (`infra/3v_18`) et relecture : exactement 6 points, un par dump (`SampleCount` 1, minimum égal au maximum).
 
-| Dump | Inscription (UTC) | Fraîcheur |
-|---|---|---|
-| 2676 | 13:05 | 219 936,5 s (61,09 h) |
-| 2677 | 13:07 | 220 066,3 s (61,13 h) |
-| 2678 | 13:17 | 134 240,8 s (37,29 h) |
-| 2679 | 13:19 | 134 368,7 s (37,32 h) |
-| 2680 | 15:12 | 54 737,0 s (15,20 h) |
-| 2681 | 15:14 | 54 887,4 s (15,25 h) |
+| Dump | Fraîcheur |
+|---|---|
+| 2676 | 219 936,5 s (61,09 h) |
+| 2677 | 220 066,3 s (61,13 h) |
+| 2678 | 134 240,8 s (37,29 h) |
+| 2679 | 134 368,7 s (37,32 h) |
+| 2680 | 54 737,0 s (15,20 h) |
+| 2681 | 54 887,4 s (15,25 h) |
 
-`EcoutesChargees` du 26/09 : somme 14 440 138 sur 6 publications. Constat visuel du tableau fait par Loïc. **Critère atteint** : la métrique est publiée, une fois par dump, et visible sur le tableau de bord. Fraîcheurs élevées : chargement de rattrapage ; le régime quotidien est à lire sur les points du 27/09.
+`EcoutesChargees` des dumps 2676 à 2681 : somme 14 440 138 sur 6 publications. Constat visuel du tableau fait par Loïc. **Critère atteint** : la métrique est publiée, une fois par dump, et visible sur le tableau de bord. Fraîcheurs élevées : chargement de rattrapage ; le régime quotidien est à lire sur les points des chargements planifiés suivants.

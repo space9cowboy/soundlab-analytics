@@ -2,7 +2,7 @@ import sys, time
 t_app = time.time()
 from pyspark.sql import SparkSession, functions as F
 
-# Tache 4.0 (phase 4, 27/09) : mesure en lecture seule, aucune ecriture.
+# Tache 4.0 (phase 4) : mesure en lecture seule, aucune ecriture.
 # Repond a deux questions avant de concevoir l'agregation quotidienne destinee a Redshift :
 #  Q1. Une meme ecoute (triplet user_id, timestamp, recording_msid) figure-t-elle dans plusieurs dumps
 #      incrementaux ? 3v_24 ne dedoublonne qu'a l'interieur d'un lot.

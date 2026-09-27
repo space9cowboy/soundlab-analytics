@@ -13,7 +13,7 @@
 --
 --  Limite assumée : un groupe présent dans l'entrepôt mais absent de la nouvelle
 --  sortie de 3v_61 n'est pas supprimé. C'est voulu : quand la règle lb-brut-31j
---  aura fait expirer les premiers dumps (vers le 25/10), 3v_61 reconstruira des
+--  aura fait expirer les premiers dumps (31 jours après leur chargement), 3v_61 reconstruira des
 --  agrégats sur une fenêtre plus courte ; l'entrepôt, qui ne porte aucun jeton,
 --  doit conserver les comptes déjà acquis. En contrepartie, un compte d'un jour
 --  couvert par un dump expiré pourrait être ré-écrit à la baisse : à traiter

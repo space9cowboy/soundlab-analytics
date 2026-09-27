@@ -1,7 +1,7 @@
 # Analyse des performances de l'entrepôt Redshift
 
 **Projet de certification Bloc 6 — Big Data**
-SoundLab Analytics · Loïc Rabetsanta · 10 septembre 2026
+SoundLab Analytics · Loïc Rabetsanta
 
 ---
 

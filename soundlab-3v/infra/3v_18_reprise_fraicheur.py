@@ -1,5 +1,5 @@
 # 3v_18 (tache 5.1) : reprise des metriques de fraicheur des dumps charges par la machine avant la v3 du pilotage.
-# Pour chaque sortie de l'etat Inscrire dans l'historique des executions (2676 a 2681 le 26/09), rappelle l'action
+# Pour chaque sortie de l'etat Inscrire dans l'historique des executions (dumps 2676 a 2681), rappelle l'action
 # inscrire du Lambda v3 avec l'heure reelle d'inscription : la metrique est publiee telle qu'elle etait a ce moment,
 # horodatee a ce moment. L'entree du registre est reecrite a l'identique (empreinte controlee avant et apres).
 # Garde : refuse si l'espace SoundLab/3V contient deja des metriques (pas de double publication).

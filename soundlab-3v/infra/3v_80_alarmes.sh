@@ -10,7 +10,7 @@
 #  soundlab-3v-chargement-en-echec   exécutions de la machine à états en échec,
 #                                    expirées ou interrompues (>= 1 sur 5 min).
 #                                    Métrique validée par les deux échecs réels
-#                                    (26/09 ~15:00 et 27/09 ~04:00, heure de Paris).
+#                                    (chargements des dumps 2680 et 2683).
 #  soundlab-3v-chargement-absent     aucune exécution réussie en 24 h ; donnée
 #                                    manquante = panne (R14, défaillance silencieuse).
 #                                    Fondée sur les exécutions réussies et non sur
@@ -20,7 +20,7 @@
 #                                    quotidien, un dump est chargé au cycle de 02:00
 #                                    UTC suivant sa clôture ; 36 h = un cycle manqué
 #                                    plus une marge. Valeur de régime à confirmer :
-#                                    un seul chargement planifié mesuré au 27/09.
+#                                    un seul chargement planifié mesuré.
 #
 #  Le test par set-alarm-state prouve le trajet jusqu'à la notification, pas la
 #  logique de la métrique ; la vérification lit l'historique d'action de chaque

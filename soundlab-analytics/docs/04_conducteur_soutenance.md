@@ -1,7 +1,7 @@
 # Conducteur de soutenance — SoundLab Analytics
 
 **Bloc 6 · Big Data** — 21 diapositives, créneau de 20 minutes
-Loïc Rabetsanta — 16 septembre 2026
+Loïc Rabetsanta
 
 ---
 

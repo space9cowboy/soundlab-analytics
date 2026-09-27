@@ -1,10 +1,10 @@
-# 3v_10 v2 (B8, 26/09/2026) : ingestion ListenBrainz en LISTE BLANCHE.
+# 3v_10 v2 (B8) : ingestion ListenBrainz en LISTE BLANCHE.
 # Seules les cles "gardes" du contrat de schema sont ecrites, a chaque niveau (racine, track_metadata,
 # additional_info, mbid_mapping, elements de mbid_mapping.artists). Toute autre cle est retiree avant
 # ecriture et comptee dans le manifeste par famille (interdites_ou_purgees, ecartees, inconnues) :
 # noms et effectifs seulement, jamais de valeur. user_id pseudonymise (HMAC-SHA256 sale, 32 hex).
 # Le manifeste enregistre aussi les bornes START/END du dump (tranches contigues, politique L5).
-# v3 (S1, 26/09/2026) : --mode incremental ecrit le dump TEL QUEL en un seul objet sous
+# v3 (S1) : --mode incremental ecrit le dump TEL QUEL en un seul objet sous
 # <dest>/dump=<id>/part-<id>.json.zst (zone de transit) ; les ecoutes y couvrent des milliers de
 # jours (mesure : 7 534 jours pour le dump 2674), la repartition par date est faite par Spark (3.1/3.2).
 # Le mode complet (defaut) est inchange : un objet par jour d'ecoute, controle de mois.

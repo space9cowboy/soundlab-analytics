@@ -1,4 +1,4 @@
-# 3v_16 (tache 3.3, decision du 26/09) : tests locaux de 3v_24 v6 (rebut sous seuil des lignes TYPE_MODIFIE).
+# 3v_16 (tache 3.3, decision de conception) : tests locaux de 3v_24 v6 (rebut sous seuil des lignes TYPE_MODIFIE).
 # Lance le job en Spark local sur des lots fabriques de 20 000 lignes (seuil 1e-4 -> 2 lignes tolerees) :
 #   C0 sain ; C1 1 ligne ai.music_service booleen (cas reel de 2680) ; C2 2 lignes (limite) ; C3 3 lignes (hors seuil) ;
 #   C4 2 champs differents ; C5 1 ligne ai.duration_ms texte (champ entier, lecture Spark non conforme) ;

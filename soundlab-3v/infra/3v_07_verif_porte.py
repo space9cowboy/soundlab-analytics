@@ -1,6 +1,6 @@
 # 3v_07 v2 (B8) : verifie les deux rapports de la porte 3v_30 (critere de fin de la tache 2.5).
 # Sain : SUCCES, tous les controles reussis. Degrade : ECHEC, chaque controle bloquant en echec,
-# et Q5 signale exactement les lots attendus (mesures du 26/09/2026).
+# et Q5 signale exactement les lots attendus (mesures de la tache 2.5).
 import json, subprocess, sys
 BASE = "s3://soundlab-curated-558852/trois_v/_rapports/qualite/"
 ATT_MOIS = ["2005-02", "2005-03", "2005-04", "2005-05", "2005-06", "2005-07"]

@@ -9,7 +9,7 @@
 --  Seule lecture hors de soundlab_lb : soundlab.dim_track, utilisée comme
 --  générateur de numéros pour la dimension temps (50 683 lignes, 8 858 utiles).
 --
---  Source : sortie du job 3v_61 (décision du 27/09 : deux origines, un grain).
+--  Source : sortie du job 3v_61 (décision de conception : deux origines, un grain).
 --    origine=complet  502 960 355 groupes, 695 640 731 écoutes, 2002-10 à 2016-12
 --    origine=incr      17 226 501 groupes,  24 184 191 écoutes, 2005-02 à 2026-09
 --  Aucune colonne de jeton : l'entrepôt ne reçoit que des comptes.

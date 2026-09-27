@@ -1,4 +1,4 @@
-# 3v_28 (tache 3.3, echec du dump 2683 le 27/09) : tests locaux de 3v_24 v7 (dump vide).
+# 3v_28 (tache 3.3, echec du dump 2683 lors d'un chargement nocturne) : tests locaux de 3v_24 v7 (dump vide).
 #   V0 lot vide, attendu 0 : v7 APLATI_OK, DUMP_VIDE, SORTIE LIGNES 0, aucune ecriture ; v6 sur le meme lot : echec (temoin).
 #   V1 3 lignes toutes incognito : v7 doit echouer (APLATI_VIDE_NON_ATTENDU), aucune ecriture.
 #   V2 lot vide, attendu 1 : v7 doit echouer.

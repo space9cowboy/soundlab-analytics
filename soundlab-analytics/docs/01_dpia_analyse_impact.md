@@ -3,7 +3,7 @@
 **Traitement** : « Prédiction du potentiel commercial d'un titre musical »
 **Responsable de traitement** : SoundLab Analytics SAS (société fictive), Lyon
 **Rédacteur** : Loïc Rabetsanta, architecte data
-**Version** : 1.0 — 10 septembre 2026
+**Version** : 1.0
 **Statut** : soumise à l'avis du DPO
 
 > **Portée de ce document.** Il s'agit d'un exercice de certification portant sur une organisation fictive et sur un jeu de données public de recherche. Les analyses juridiques qui suivent appliquent la méthodologie CNIL et le RGPD à cette situation simulée ; elles ne constituent pas un avis juridique.
@@ -80,7 +80,7 @@ Conséquence : **SoundLab ne détient à aucun moment, et ne peut reconstituer p
 | Journaux CloudTrail | 12 mois | 30 jours | 395 jours | Traçabilité des accès, aligné sur la recommandation CNIL en matière de journalisation |
 | Rapports de qualité et d'audit | 36 mois | — | — | Preuve de conformité opposable |
 
-**Mise en œuvre technique — appliquée le 10 septembre 2026** par le script `infra/03_retention.sh`, versionné dans le dépôt.
+**Mise en œuvre technique — appliquée** par le script `infra/03_retention.sh`, versionné dans le dépôt.
 
 **Pourquoi deux colonnes de délai.** Les buckets sont versionnés, ce qui protège d'un écrasement accidentel mais modifie la sémantique de l'expiration : sur un bucket versionné, une règle `Expiration` **ne supprime pas l'objet**. Elle pose un marqueur de suppression et bascule la version courante en version non courante. L'objet disparaît des listages, mais la donnée reste intégralement récupérable — et demeure donc une donnée à caractère personnel au sens du RGPD.
 
@@ -120,7 +120,7 @@ Trois mesures concrètes, toutes vérifiables :
 
 **Suppression de l'identifiant en clair.** La colonne `user_id` source est supprimée du jeu de données avant toute écriture en couche `curated`. Une assertion dans le code d'ingestion arrête le job si elle subsiste.
 
-**Contrôle automatisé de non-régression.** La suite de tests de la tâche 9 comporte un contrôle bloquant qui vérifie l'absence de toute colonne d'identification directe (`user_id`, `email`, `ip`…) dans la couche `curated`. Résultat au 10 septembre 2026 : **conforme**.
+**Contrôle automatisé de non-régression.** La suite de tests de la tâche 9 comporte un contrôle bloquant qui vérifie l'absence de toute colonne d'identification directe (`user_id`, `email`, `ip`…) dans la couche `curated`. Résultat : **conforme**.
 
 **Réduction du condensat au strict nécessaire.** Le jeton est tronqué à 128 bits, longueur suffisante pour garantir l'unicité sur 962 037 personnes sans conserver d'information superflue.
 
@@ -128,7 +128,7 @@ Trois mesures concrètes, toutes vérifiables :
 
 Treize contrôles de qualité sont exécutés sur la couche `curated` par un job dédié, dont le code de sortie est non nul en cas d'échec bloquant. Branché dans l'orchestrateur, ce job empêche la propagation de données invalides vers le modèle.
 
-Résultats du 10 septembre 2026 : **13 contrôles sur 13 réussis, aucun échec bloquant, aucun avertissement.**
+Résultats : **13 contrôles sur 13 réussis, aucun échec bloquant, aucun avertissement.**
 
 | Contrôle | Résultat |
 | --- | --- |
@@ -330,7 +330,7 @@ C'est le mode de ré-identification que la pseudonymisation, par construction, n
 
 **Nature du risque initial.** Les durées définies au § 1.5 n'étaient pas traduites en règles de cycle de vie S3 : aucun objet courant n'expirait automatiquement, et le document annonçait une limitation de conservation que l'infrastructure n'appliquait pas.
 
-**Correction apportée le 10 septembre 2026.** Script `infra/03_retention.sh` : expiration à 365 jours sur `raw` et `logs`, 730 jours sur `curated`, purge des versions non courantes à 30 jours sur les cinq buckets, nettoyage des marqueurs de suppression sur les buckets sans expiration.
+**Correction apportée.** Script `infra/03_retention.sh` : expiration à 365 jours sur `raw` et `logs`, 730 jours sur `curated`, purge des versions non courantes à 30 jours sur les cinq buckets, nettoyage des marqueurs de suppression sur les buckets sans expiration.
 
 **Point technique relevé lors de la correction**, qui aurait pu produire une conformité de façade : sur un bucket versionné, `Expiration` ne supprime pas la donnée mais la bascule en version non courante. Sans `NoncurrentVersionExpiration`, la purge est illusoire. Les deux règles sont désormais posées conjointement.
 
@@ -340,7 +340,7 @@ C'est le mode de ré-identification que la pseudonymisation, par construction, n
 
 | Réf. | Action | Priorité | Échéance / État |
 | --- | --- | --- | --- |
-| **A1** | Appliquer les règles d'expiration S3 conformes aux durées du § 1.5 | Haute | ✅ **Fait le 10/09/2026** — `infra/03_retention.sh` |
+| **A1** | Appliquer les règles d'expiration S3 conformes aux durées du § 1.5 | Haute | ✅ **Fait** — `infra/03_retention.sh` |
 | **A2** | Sortir le sel des plans Spark, par une fonction définie par l'utilisateur portant le secret en fermeture plutôt qu'en littéral ; à défaut, chiffrer les journaux du bucket avec la clé du projet et restreindre leur lecture au DPO | Haute | Avant la mise en production |
 | **A3** | Écarter du jeu d'entraînement les profils extrêmes au-delà du 99,9ᵉ percentile, ou plafonner le nombre de titres retenus par jeton | Moyenne | Tâche de préparation des variables |
 | **A4** | Créer un rôle de lecture seule distinct du rôle d'administration ; réserver `AdministratorAccess` aux opérations d'infrastructure | Moyenne | Trajectoire cible |
@@ -377,7 +377,7 @@ Trois caractéristiques structurelles fondent cette appréciation :
 
 | | |
 | --- | --- |
-| **Rédigé par** | Loïc Rabetsanta, architecte data — 10 septembre 2026 |
+| **Rédigé par** | Loïc Rabetsanta, architecte data |
 | **Avis du DPO** | *En attente* |
 | **Validation du responsable de traitement** | *En attente* |
 | **Prochaine révision** | À chaque évolution substantielle du traitement, et au minimum tous les douze mois |

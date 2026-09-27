@@ -7,7 +7,7 @@
 #  Meme modele que jobs/09_tests_qualite.py (Bloc 6, fige, non modifie) :
 #  registre de controles, seuils justifies, rapport JSON, code de sortie 1
 #  des qu'un controle BLOQUANT echoue. Controles Q1 a Q8 valides par Loic
-#  le 26/09/2026. Chaque controle doit echouer sur le jeu degrade.
+#  (tache 2.5). Chaque controle doit echouer sur le jeu degrade.
 #  v2 (B8, politique L4 et L6) : Q1_cles_inconnues_ingestion lit les manifestes de
 #  l'ingestion en liste blanche (avertissement) ; Q5 incremental agrege par jour de
 #  publication (les dumps de minuit sont des tranches contigues, pas des anomalies).
@@ -24,14 +24,14 @@ BLOQUANT, AVERTISSEMENT = "BLOQUANT", "AVERTISSEMENT"
 UUID = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
 
 SEUILS = {
-    # Q5 mois : ratio au median des 12 mois precedents. Mesure du 26/09 sur les
+    # Q5 mois : ratio au median des 12 mois precedents. Mesure sur les
     # 171 mois : hors 2005-02..2005-07 (changement de regime), max 2,98, min 0,939.
     "q5_mois_ratio_haut": 5.0,
     "q5_mois_ratio_bas": 0.5,
     "q5_mois_fenetre": 12,
     # Q5 increments : 30 dumps du 02 au 26/09/2026. 25 dumps de 195 361 983 a
     # 388 649 913 octets ; 5 dumps de minuit de 2 860 a 3 574 octets, tranches
-    # contigues au dump plein (bornes verifiees le 26/09) : volumes sommes par jour.
+    # contigues au dump plein (bornes verifiees) : volumes sommes par jour.
     "q5_incr_ratio_haut": 5.0,
     "q5_incr_ratio_bas": 0.2,
     "q5_incr_fenetre": 14,

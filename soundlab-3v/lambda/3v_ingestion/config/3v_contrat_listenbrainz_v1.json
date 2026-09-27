@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "date": "2026-09-25",
+  "source": "ListenBrainz dump 2663, ecoutes JSON",
+  "types": ["texte", "entier", "booleen", "liste_texte", "objet", "liste_objet", "texte_ou_entier"],
+  "niveaux": {
+    "racine": {
+      "chemin": "",
+      "gardes": {
+        "user_id": {"type": "texte", "obligatoire": true},
+        "timestamp": {"type": "entier", "obligatoire": true},
+        "recording_msid": {"type": "texte", "obligatoire": true},
+        "track_metadata": {"type": "objet", "niveau": "tm", "obligatoire": true}
+      },
+      "ecartes": [],
+      "purges": []
+    },
+    "tm": {
+      "chemin": "$.track_metadata",
+      "gardes": {
+        "artist_name": {"type": "texte", "obligatoire": true},
+        "track_name": {"type": "texte", "obligatoire": true},
+        "release_name": {"type": "texte"},
+        "music_service": {"type": "texte"},
+        "spotify_id": {"type": "texte"},
+        "additional_info": {"type": "objet", "niveau": "ai"},
+        "mbid_mapping": {"type": "objet", "niveau": "mm"}
+      },
+      "ecartes": ["media-player", "duration"],
+      "purges": []
+    },
+    "ai": {
+      "chemin": "$.track_metadata.additional_info",
+      "gardes": {
+        "recording_mbid": {"type": "texte"}, "track_mbid": {"type": "texte"}, "recording_msid": {"type": "texte"},
+        "artist_mbid": {"type": "texte"}, "artist_mbids": {"type": "liste_texte"}, "artist_msid": {"type": "texte"},
+        "artist_names": {"type": "liste_texte"}, "release_mbid": {"type": "texte"}, "release_msid": {"type": "texte"},
+        "release_group_mbid": {"type": "texte"}, "release_artist_name": {"type": "texte"},
+        "release_artist_names": {"type": "liste_texte"}, "lastfm_track_mbid": {"type": "texte"},
+        "lastfm_artist_mbid": {"type": "texte"}, "lastfm_release_mbid": {"type": "texte"}, "isrc": {"type": "texte"},
+        "duration_ms": {"type": "entier"}, "duration": {"type": "texte_ou_entier"},
+        "track_length": {"type": "texte_ou_entier"}, "tracknumber": {"type": "texte_ou_entier"},
+        "trackNumer": {"type": "texte_ou_entier"}, "track_number": {"type": "texte_ou_entier"},
+        "music_service": {"type": "texte"}, "music_service_name": {"type": "texte"}, "spotify_id": {"type": "texte"},
+        "spotify_album_id": {"type": "texte"}, "spotify_artist_ids": {"type": "liste_texte"},
+        "spotify_album_artist_ids": {"type": "liste_texte"}, "spotify_track_uri": {"type": "texte"},
+        "incognito_mode": {"type": "booleen"}
+      },
+      "ecartes": ["original_submission_client", "origin_url", "tmm_event_uuid", "hoardr_master_sha256",
+                  "apple_music_description_hash", "dedup_tag", "sp2lb_artist_confidence", "metadata_resolution_tier",
+                  "ms_played", "skipped", "reason_start", "reason_end", "duration_played", "listening_from",
+                  "spotify_ms_played", "source", "tmm_edit_model", "tmm_release_policy", "tmm_source_of_truth",
+                  "tmm_provider_role", "tmm_canonical_listen_key", "media_player_version", "album_artist_name",
+                  "work_mbids", "discnumber", "totaltracks", "totaldiscs", "date", "release_year", "youtube_channel",
+                  "youtube_music_video_id", "takeout_title", "takeout_channel", "listening_time"],
+      "purges": ["ip_addr", "source_ip", "conn_country", "platform", "offline", "offline_timestamp", "shuffle",
+                 "spotify_episode_uri", "episode_name", "episode_show_name", "audiobook_title", "audiobook_uri",
+                 "audiobook_chapter_uri", "audiobook_chapter_title"]
+    },
+    "mm": {
+      "chemin": "$.track_metadata.mbid_mapping",
+      "gardes": {
+        "recording_mbid": {"type": "texte"}, "recording_name": {"type": "texte"}, "release_mbid": {"type": "texte"},
+        "artist_mbids": {"type": "liste_texte"}, "artists": {"type": "liste_objet", "niveau": "artiste"},
+        "caa_id": {"type": "texte_ou_entier"}, "caa_release_mbid": {"type": "texte"}
+      },
+      "ecartes": [],
+      "purges": []
+    },
+    "artiste": {
+      "chemin": null,
+      "gardes": {
+        "artist_mbid": {"type": "texte"}, "artist_credit_name": {"type": "texte"}, "join_phrase": {"type": "texte"}
+      },
+      "ecartes": [],
+      "purges": []
+    }
+  },
+  "interdites_toujours": ["user_name", "submission_client", "submission_client_version", "media_player", "tags", "rating"]
+}

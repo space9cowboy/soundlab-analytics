@@ -1,0 +1,6 @@
+# Empreintes SHA-256 des sources, relevees au chargement depuis AWS CloudShell
+# (unzip -p | tee >(sha256sum) | aws s3 cp -), consignees au § 5.2 du journal.
+# Transcrites depuis le journal : les CSV sources ne resident pas dans le depot,
+# ces valeurs ne sont donc pas recalculables localement.
+d930430f811ba3c77f217b3f456f2b6271c238b828d6d9ad76e889b5d725f187  msd/music_info.csv
+6220d88d533d99d57888dea6e9408b168c021d6cfc1ea307a3ba042cd000df31  msd/user_listening_history.csv

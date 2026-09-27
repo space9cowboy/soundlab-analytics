@@ -1,0 +1,12 @@
+.env
+*.pem
+*.csv
+credentials
+.aws/
+mlruns/
+__pycache__/
+.ipynb_checkpoints/
+.soundlab.env
+orchestration/logs/
+orchestration/plugins/
+**/.env

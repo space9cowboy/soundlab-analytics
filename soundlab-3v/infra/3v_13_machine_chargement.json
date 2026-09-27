@@ -1,0 +1,117 @@
+{
+  "Comment": "SoundLab 3V tache 3.3 (E2, E3) : chargement quotidien des dumps incrementaux ListenBrainz. Planifier -> pour chaque dump, un a la fois : ingestion (Lambda) -> continuite -> 3v_24 v5 (EMR Serverless) -> inscription au registre. Le premier echec arrete l'execution : aucun dump posterieur n'est charge.",
+  "StartAt": "Planifier",
+  "States": {
+    "Planifier": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "Parameters": {
+        "FunctionName": "arn:aws:lambda:eu-north-1:589276558852:function:soundlab-3v-pilotage",
+        "Payload": {
+          "action": "planifier",
+          "machine.$": "$$.StateMachine.Id",
+          "execution.$": "$$.Execution.Id"
+        }
+      },
+      "ResultSelector": {"plan.$": "$.Payload"},
+      "Retry": [{"ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"], "IntervalSeconds": 5, "MaxAttempts": 3, "BackoffRate": 2}],
+      "Next": "DumpsAcharger"
+    },
+    "DumpsAcharger": {
+      "Type": "Choice",
+      "Choices": [{"Variable": "$.plan.dumps[0]", "IsPresent": true, "Next": "Charger"}],
+      "Default": "RienAcharger"
+    },
+    "RienAcharger": {"Type": "Succeed"},
+    "Charger": {
+      "Type": "Map",
+      "ItemsPath": "$.plan.dumps",
+      "MaxConcurrency": 1,
+      "ItemProcessor": {
+        "ProcessorConfig": {"Mode": "INLINE"},
+        "StartAt": "Ingerer",
+        "States": {
+          "Ingerer": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "arn:aws:lambda:eu-north-1:589276558852:function:soundlab-3v-ingestion",
+              "Payload": {
+                "dump.$": "$.dump",
+                "prefixe": "listenbrainz/incrementaux",
+                "prefixe_manifestes": "trois_v/_manifestes/listenbrainz"
+              }
+            },
+            "ResultSelector": {"statut.$": "$.Payload.statut", "ecoutes.$": "$.Payload.ecoutes", "manifeste.$": "$.Payload.manifeste"},
+            "ResultPath": "$.ingestion",
+            "TimeoutSeconds": 960,
+            "Retry": [{"ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"], "IntervalSeconds": 10, "MaxAttempts": 2, "BackoffRate": 2}],
+            "Next": "Continuite"
+          },
+          "Continuite": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "arn:aws:lambda:eu-north-1:589276558852:function:soundlab-3v-pilotage",
+              "Payload": {"action": "continuite", "n.$": "$.n"}
+            },
+            "ResultSelector": {
+              "verdict.$": "$.Payload.verdict", "attendu.$": "$.Payload.attendu", "reception.$": "$.Payload.reception",
+              "start.$": "$.Payload.start", "end.$": "$.Payload.end", "ecoutes.$": "$.Payload.ecoutes"
+            },
+            "ResultPath": "$.continuite",
+            "Retry": [{"ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"], "IntervalSeconds": 5, "MaxAttempts": 3, "BackoffRate": 2}],
+            "Next": "Aplatir"
+          },
+          "Aplatir": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::emr-serverless:startJobRun.sync",
+            "Parameters": {
+              "ApplicationId": "00g8l9brbs9e3f1d",
+              "ExecutionRoleArn": "arn:aws:iam::589276558852:role/SoundLabEMRServerlessExecutionRole",
+              "Name.$": "States.Format('3v_24_aplatissement-{}-sfn', $.n)",
+              "JobDriver": {
+                "SparkSubmit": {
+                  "EntryPoint": "s3://soundlab-scripts-558852/jobs/3v_24_aplatissement.py",
+                  "EntryPointArguments.$": "States.Array('s3://soundlab-raw-558852/listenbrainz/incrementaux', '-', '-', 's3://soundlab-raw-558852/listenbrainz/aplati_incr', 's3://soundlab-raw-558852/listenbrainz/rebut_incr', $.continuite.attendu, 's3://soundlab-scripts-558852/trois_v/contrats/3v_contrat_listenbrainz_v1.json', '--incremental', $.n, '--reception', $.continuite.reception)",
+                  "SparkSubmitParameters": "--conf spark.executor.cores=2 --conf spark.executor.memory=8g --conf spark.driver.cores=2 --conf spark.driver.memory=4g --conf spark.executor.instances=2 --conf spark.dynamicAllocation.enabled=true --conf spark.dynamicAllocation.minExecutors=1 --conf spark.dynamicAllocation.initialExecutors=2 --conf spark.dynamicAllocation.maxExecutors=4 --conf spark.sql.sources.partitionOverwriteMode=dynamic"
+                }
+              },
+              "ConfigurationOverrides": {
+                "MonitoringConfiguration": {
+                  "S3MonitoringConfiguration": {"LogUri": "s3://soundlab-logs-558852/emr-serverless/"}
+                }
+              }
+            },
+            "ResultPath": "$.emr",
+            "TimeoutSeconds": 3600,
+            "Next": "Inscrire"
+          },
+          "Inscrire": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::lambda:invoke",
+            "Parameters": {
+              "FunctionName": "arn:aws:lambda:eu-north-1:589276558852:function:soundlab-3v-pilotage",
+              "Payload": {
+                "action": "inscrire", "n.$": "$.n", "emr.$": "$.emr",
+                "verdict.$": "$.continuite.verdict", "start.$": "$.continuite.start",
+                "end.$": "$.continuite.end", "ecoutes.$": "$.continuite.ecoutes"
+              }
+            },
+            "ResultSelector": {"inscrit.$": "$.Payload.inscrit"},
+            "ResultPath": "$.registre",
+            "Retry": [
+              {"ErrorEquals": ["LogsAbsents"], "IntervalSeconds": 30, "MaxAttempts": 6, "BackoffRate": 1.5},
+              {"ErrorEquals": ["Lambda.ServiceException", "Lambda.AWSLambdaException", "Lambda.SdkClientException", "Lambda.TooManyRequestsException"], "IntervalSeconds": 5, "MaxAttempts": 3, "BackoffRate": 2}
+            ],
+            "End": true
+          }
+        }
+      },
+      "ResultSelector": {"charges.$": "$[*].n"},
+      "ResultPath": "$.bilan",
+      "Next": "Termine"
+    },
+    "Termine": {"Type": "Succeed"}
+  }
+}

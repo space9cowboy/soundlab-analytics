@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 790" width="1340" height="790" role="img" aria-label="Architecture Big Data de SoundLab Analytics : les CSV Kaggle sont déposés dans S3 raw chiffré, traités par trois jobs PySpark sur EMR Serverless, écrits en Parquet dans S3 curated et déclarés au catalogue Glue. La couche curated alimente Athena pour l'analyse ad hoc, Redshift Serverless en schéma en étoile, et l'entraînement local du modèle. Le modèle est publié dans S3 puis servi par API Gateway et Lambda. Sécurité et observabilité sont transverses.">
+  <defs>
+    <marker id="fleche" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#14202A"/>
+    </marker>
+    <marker id="fleche-futur" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#A0521C"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1340" height="790" fill="#FFFFFF"/>
+
+  <!-- ══════════ ORCHESTRATION (réalisée) ══════════ -->
+  <rect x="40" y="20" width="1260" height="46" rx="4" fill="#DCEEEF" stroke="#0B6E75" stroke-width="1.4"/>
+  <text x="60" y="40" font-family="sans-serif" font-size="11.5" font-weight="600" fill="#0B6E75">ORCHESTRATION — AIRFLOW 2.10 EN CONTENEUR LOCAL</text>
+  <text x="60" y="56" font-family="sans-serif" font-size="11" fill="#5A6B78">DAG en losange : T7 ∥ T8 → porte de qualité T9 → T10 → chargement Redshift · 5 tâches en 8 min 11 s · pool à 1 emplacement (quota de 16 vCPU) · MWAA écarté (≈ 350 €/mois à vide)</text>
+
+  <!-- ══════════ BANDE 1 — INGESTION ET PRÉPARATION ══════════ -->
+  <text x="40" y="95" font-family="sans-serif" font-size="11" font-weight="700" fill="#0B6E75" letter-spacing="1.2">1 · INGESTION ET PRÉPARATION DISTRIBUÉE</text>
+
+  <!-- Source -->
+  <rect x="40" y="108" width="170" height="96" rx="4" fill="#EEF1F3" stroke="#C9D4DA"/>
+  <text x="125" y="132" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">Kaggle</text>
+  <text x="125" y="152" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">Million Song Dataset</text>
+  <text x="125" y="169" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">+ Taste Profile</text>
+  <text x="125" y="189" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">2 CSV · 617 Mo</text>
+
+  <line x1="214" y1="156" x2="272" y2="156" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+  <text x="243" y="146" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">flux</text>
+  <text x="243" y="172" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">SHA-256</text>
+
+  <!-- S3 raw -->
+  <rect x="278" y="108" width="192" height="96" rx="4" fill="#DCEEEF" stroke="#0B6E75" stroke-width="1.6"/>
+  <text x="374" y="130" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">S3 · raw</text>
+  <text x="374" y="149" text-anchor="middle" font-family="monospace" font-size="10" fill="#5A6B78">music_info.csv</text>
+  <text x="374" y="165" text-anchor="middle" font-family="monospace" font-size="10" fill="#5A6B78">user_listening_history.csv</text>
+  <text x="374" y="187" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0B6E75">chiffré CMK KMS · immuable</text>
+
+  <line x1="474" y1="200" x2="532" y2="200" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+  <text x="503" y="192" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">lit</text>
+
+  <!-- EMR Serverless -->
+  <rect x="538" y="100" width="238" height="235" rx="4" fill="#F7FAFA" stroke="#0B6E75" stroke-width="1.6"/>
+  <text x="657" y="122" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">EMR Serverless</text>
+  <text x="657" y="139" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">PySpark 3.5 · ARM64 · 14 vCPU</text>
+
+  <rect x="554" y="150" width="206" height="52" rx="3" fill="#DCEEEF" stroke="#0B6E75"/>
+  <text x="657" y="168" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">T7 · Ingestion métadonnées</text>
+  <text x="657" y="186" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#5A6B78">50 683 pistes · 36 s · schéma déclaré</text>
+
+  <rect x="554" y="210" width="206" height="52" rx="3" fill="#DCEEEF" stroke="#0B6E75"/>
+  <text x="657" y="228" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">T8 · Pseudonymisation</text>
+  <text x="657" y="246" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#5A6B78">9,7 M lignes · SHA-256 salé · 38 s</text>
+
+  <rect x="554" y="270" width="206" height="52" rx="3" fill="#DCEEEF" stroke="#0B6E75"/>
+  <text x="657" y="288" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">T10 · Feature engineering</text>
+  <text x="657" y="306" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#5A6B78">jointure · label · variables artiste</text>
+
+  <line x1="780" y1="200" x2="838" y2="200" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+  <text x="809" y="192" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">Parquet</text>
+
+  <!-- S3 curated -->
+  <rect x="844" y="100" width="214" height="235" rx="4" fill="#DCEEEF" stroke="#0B6E75" stroke-width="1.6"/>
+  <text x="951" y="122" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">S3 · curated</text>
+  <text x="951" y="139" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">Parquet + Snappy · chiffré KMS</text>
+
+  <rect x="858" y="152" width="186" height="36" rx="3" fill="#FFFFFF" stroke="#C9D4DA"/>
+  <text x="951" y="167" text-anchor="middle" font-family="monospace" font-size="10" fill="#14202A">music_info</text>
+  <text x="951" y="181" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">50 683 × 24 · 6,9 Mio</text>
+
+  <rect x="858" y="195" width="186" height="36" rx="3" fill="#FFFFFF" stroke="#C9D4DA"/>
+  <text x="951" y="210" text-anchor="middle" font-family="monospace" font-size="10" fill="#14202A">listening_history</text>
+  <text x="951" y="224" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">9 711 301 × 4 · 317 Mio</text>
+
+  <rect x="858" y="238" width="186" height="36" rx="3" fill="#FFFFFF" stroke="#C9D4DA"/>
+  <text x="951" y="253" text-anchor="middle" font-family="monospace" font-size="10" fill="#14202A">track_engagement</text>
+  <text x="951" y="267" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">30 459 · agrégat précalculé</text>
+
+  <rect x="858" y="281" width="186" height="36" rx="3" fill="#FFFFFF" stroke="#C9D4DA"/>
+  <text x="951" y="296" text-anchor="middle" font-family="monospace" font-size="10" fill="#14202A">songs_features_labeled</text>
+  <text x="951" y="310" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">30 459 × 32 · jeu d'entraînement</text>
+
+  <line x1="1062" y1="200" x2="1118" y2="200" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+  <text x="1090" y="192" text-anchor="middle" font-family="sans-serif" font-size="9" fill="#5A6B78">déclare</text>
+
+  <!-- Glue -->
+  <rect x="1124" y="140" width="176" height="120" rx="4" fill="#EEF1F3" stroke="#C9D4DA"/>
+  <text x="1212" y="164" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">Catalogue Glue</text>
+  <text x="1212" y="184" text-anchor="middle" font-family="monospace" font-size="10" fill="#5A6B78">soundlab_curated</text>
+  <text x="1212" y="204" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">4 tables déclarées</text>
+  <text x="1212" y="224" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">explicitement par API</text>
+  <text x="1212" y="244" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#0B6E75">aucun crawler</text>
+
+  <!-- ══════════ BANDE 2 — RESTITUTION ══════════ -->
+  <text x="40" y="375" font-family="sans-serif" font-size="11" font-weight="700" fill="#0B6E75" letter-spacing="1.2">2 · RESTITUTION, ENTREPÔT ET MODÉLISATION</text>
+
+  <!-- bus de distribution depuis curated -->
+  <line x1="951" y1="339" x2="951" y2="398" stroke="#14202A" stroke-width="1.4"/>
+  <line x1="245" y1="398" x2="951" y2="398" stroke="#14202A" stroke-width="1.4"/>
+  <line x1="245" y1="398" x2="245" y2="442" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+  <line x1="525" y1="398" x2="525" y2="442" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+  <line x1="815" y1="398" x2="815" y2="442" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+
+  <!-- Athena -->
+  <rect x="140" y="446" width="210" height="104" rx="4" fill="#EEF1F3" stroke="#C9D4DA"/>
+  <text x="245" y="470" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">Amazon Athena</text>
+  <text x="245" y="491" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">SQL ad hoc directement sur S3</text>
+  <text x="245" y="510" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">aucune infrastructure</text>
+  <text x="245" y="533" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">exploration · contrôles qualité</text>
+
+  <!-- Redshift -->
+  <rect x="400" y="446" width="250" height="104" rx="4" fill="#DCEEEF" stroke="#0B6E75" stroke-width="1.6"/>
+  <text x="525" y="470" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">Redshift Serverless · 8 RPU</text>
+  <text x="525" y="491" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">schéma en étoile · COPY 9,7 M en 3,1 s</text>
+  <text x="525" y="510" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#14202A">dim_track — DISTSTYLE ALL</text>
+  <text x="525" y="527" text-anchor="middle" font-family="monospace" font-size="9.5" fill="#14202A">fact_listening — DISTKEY(track_id)</text>
+  <text x="525" y="543" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#0B6E75">accès par Data API · aucun port ouvert</text>
+
+  <!-- ML local -->
+  <rect x="700" y="446" width="230" height="104" rx="4" fill="#DCEEEF" stroke="#0B6E75" stroke-width="1.6"/>
+  <text x="815" y="470" text-anchor="middle" font-family="sans-serif" font-size="12.5" font-weight="600" fill="#14202A">Entraînement — poste local</text>
+  <text x="815" y="491" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">scikit-learn · MLflow · SHAP</text>
+  <text x="815" y="510" text-anchor="middle" font-family="sans-serif" font-size="10.5" fill="#5A6B78">30 459 lignes — Spark non justifié</text>
+  <text x="815" y="533" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#0B6E75">AUC 0,7875 ± 0,0059</text>
+
+  <line x1="934" y1="498" x2="972" y2="498" stroke="#14202A" stroke-width="1.4" marker-end="url(#fleche)"/>
+
+  <!-- S3 models -->
+  <rect x="978" y="456" width="146" height="84" rx="4" fill="#DCEEEF" stroke="#0B6E75" stroke-width="1.6"/>
+  <text x="1051" y="480" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#14202A">S3 · models</text>
+  <text x="1051" y="500" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">modèle sérialisé</text>
+  <text x="1051" y="517" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">graphiques SHAP</text>
+  <text x="1051" y="533" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">seuil recommandé</text>
+
+  <line x1="1128" y1="498" x2="1166" y2="498" stroke="#A0521C" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#fleche-futur)"/>
+
+  <!-- API -->
+  <rect x="1172" y="456" width="128" height="84" rx="4" fill="#F6E6D9" stroke="#A0521C" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="1236" y="480" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#14202A">API Gateway</text>
+  <text x="1236" y="498" text-anchor="middle" font-family="sans-serif" font-size="12" font-weight="600" fill="#14202A">+ Lambda</text>
+  <text x="1236" y="520" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5A6B78">service de score</text>
+  <text x="1236" y="536" text-anchor="middle" font-family="sans-serif" font-size="9.5" fill="#A0521C">à venir</text>
+
+  <!-- ══════════ BANDE 3 — TRANSVERSE ══════════ -->
+  <rect x="40" y="596" width="1260" height="104" rx="4" fill="#EEF1F3" stroke="#C9D4DA"/>
+  <text x="60" y="620" font-family="sans-serif" font-size="11" font-weight="700" fill="#0B6E75" letter-spacing="1.2">3 · SÉCURITÉ ET OBSERVABILITÉ — TRANSVERSE À TOUTE LA CHAÎNE</text>
+
+  <text x="72" y="648" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">KMS</text>
+  <text x="72" y="665" font-family="sans-serif" font-size="9.5" fill="#5A6B78">clé client, rotation</text>
+  <text x="72" y="680" font-family="sans-serif" font-size="9.5" fill="#5A6B78">annuelle · Bucket Keys</text>
+
+  <text x="272" y="648" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">Secrets Manager</text>
+  <text x="272" y="665" font-family="sans-serif" font-size="9.5" fill="#5A6B78">sel de pseudonymisation</text>
+  <text x="272" y="680" font-family="sans-serif" font-size="9.5" fill="#5A6B78">jamais journalisé</text>
+
+  <text x="492" y="648" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">IAM</text>
+  <text x="492" y="665" font-family="sans-serif" font-size="9.5" fill="#5A6B78">moindre privilège · MFA</text>
+  <text x="492" y="680" font-family="sans-serif" font-size="9.5" fill="#5A6B78">aucune clé permanente</text>
+
+  <text x="712" y="648" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">CloudTrail</text>
+  <text x="712" y="665" font-family="sans-serif" font-size="9.5" fill="#5A6B78">multirégion · intégrité</text>
+  <text x="712" y="680" font-family="sans-serif" font-size="9.5" fill="#5A6B78">vérifiable</text>
+
+  <text x="912" y="648" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">CloudWatch</text>
+  <text x="912" y="665" font-family="sans-serif" font-size="9.5" fill="#5A6B78">journaux des traitements</text>
+  <text x="912" y="680" font-family="sans-serif" font-size="9.5" fill="#5A6B78">et métriques</text>
+
+  <text x="1112" y="648" font-family="sans-serif" font-size="11" font-weight="600" fill="#14202A">AWS Budgets</text>
+  <text x="1112" y="665" font-family="sans-serif" font-size="9.5" fill="#5A6B78">alertes 50/80/100 %</text>
+  <text x="1112" y="680" font-family="sans-serif" font-size="9.5" fill="#5A6B78">plafond dur Redshift</text>
+
+  <!-- ══════════ LÉGENDE ══════════ -->
+  <rect x="40" y="726" width="16" height="11" rx="2" fill="#DCEEEF" stroke="#0B6E75"/>
+  <text x="64" y="736" font-family="sans-serif" font-size="10.5" fill="#5A6B78">réalisé et mesuré</text>
+
+  <rect x="186" y="726" width="16" height="11" rx="2" fill="#F6E6D9" stroke="#A0521C" stroke-dasharray="4 3"/>
+  <text x="210" y="736" font-family="sans-serif" font-size="10.5" fill="#5A6B78">à venir</text>
+
+  <rect x="292" y="726" width="16" height="11" rx="2" fill="#EEF1F3" stroke="#C9D4DA"/>
+  <text x="316" y="736" font-family="sans-serif" font-size="10.5" fill="#5A6B78">service managé sans configuration spécifique</text>
+
+  <text x="1300" y="736" text-anchor="end" font-family="sans-serif" font-size="10" fill="#5A6B78">SoundLab Analytics · compte AWS 589276558852 · région eu-north-1 (Stockholm) · 14 septembre 2026</text>
+
+  <!-- séparateur -->
+  <line x1="40" y1="756" x2="1300" y2="756" stroke="#C9D4DA"/>
+  <text x="40" y="775" font-family="sans-serif" font-size="10" fill="#5A6B78">Découplage volontaire : chaque étage lit et écrit dans S3. EMR n'écrit jamais dans Redshift — Spark dépose du Parquet, Redshift le charge par COPY. Aucun lien réseau entre les deux.</text>
+</svg>

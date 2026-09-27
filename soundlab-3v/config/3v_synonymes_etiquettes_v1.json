@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "tache": "3v_2.4",
+  "origine": "mesure 2.4.8 : top 25 des etiquettes de recording_tag (dump 20260923-002121)",
+  "regle": "appliquee apres normalisation typographique ; cle et valeur deja normalisees",
+  "synonymes": {
+    "vgm": "video game music"
+  }
+}

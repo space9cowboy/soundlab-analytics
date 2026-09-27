@@ -1,0 +1,30 @@
+# Secrets et environnements
+*.env
+.env
+.env*
+!.soundlab.env.exemple
+!**/.soundlab.env.exemple
+
+# Données (seul le manifeste d'empreintes est versionné)
+data/*
+**/data/*
+!soundlab-analytics/data/MANIFEST.sha256
+*.csv
+*.parquet
+*.zst
+*.gz
+
+# Artefacts, modèles, archives
+*.zip
+*.pkl
+*.joblib
+*.skops
+mlruns/
+logs/
+*.log
+
+# Divers
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
